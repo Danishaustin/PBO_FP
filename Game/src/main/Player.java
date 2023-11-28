@@ -49,6 +49,8 @@ public class Player {
 
 	}
 	
+	// Rendering Method
+	
 	private void initHitbox(float x, float y, float width, float height) {
 		hitbox = new Rectangle2D.Float(x, y, width, height);
 	}
@@ -70,6 +72,21 @@ public class Player {
 				width * flipWidth, height, null);
 		drawHitbox(g);
 	}
+	
+	// Animations Method
+	
+	private void loadAnimations() {
+
+		BufferedImage img = LoadData.GetSpriteAtlas(LoadData.PLAYER_ATLAS);
+
+		animations = new BufferedImage[5][9];
+		
+		animations[IDLE] = LoadData.GetAnimationSprite(img, 0, 0, GetSpriteAmount(IDLE));
+		animations[RUNNING] = LoadData.GetAnimationSprite(img, 4, 1, GetSpriteAmount(RUNNING));
+		animations[JUMP] = LoadData.GetAnimationSprite(img, 0, 2, GetSpriteAmount(JUMP));
+		animations[FALLING] = LoadData.GetAnimationSprite(img, 4, 2, GetSpriteAmount(FALLING));
+		animations[DEATH] = LoadData.GetAnimationSprite(img, 0, 3, GetSpriteAmount(DEATH));
+	}
 
 	private void updateAnimationTick() {
 		aniTick++;
@@ -82,6 +99,11 @@ public class Player {
 
 		}
 
+	}
+	
+	private void resetAniTick() {
+		aniTick = 0;
+		aniIndex = 0;
 	}
 
 	private void setAnimation() {
@@ -103,14 +125,13 @@ public class Player {
 			resetAniTick();
 	}
 
-	private void resetAniTick() {
-		aniTick = 0;
-		aniIndex = 0;
-	}
+	
+	// Moving Method
 
 	private void updatePos() {
 		moving = false;
-		if (!left && !right && !inAir)
+		inAirCheck();
+		if (!left && !right && !jump && !inAir)
 			return;
 
 		float xSpeed = 0;
@@ -120,16 +141,12 @@ public class Player {
 			airAccelerate = jumpAccelerate;
 		}
 		if (left) {
-			xSpeed = -playerSpeed;
-			flipX = width;
-			flipWidth = -1;
-			xDrawOffset = 18 * Game.SCALE;
+			xSpeed -= playerSpeed;
+			flipImage(true);
 		}
 		if (right) {
-			xSpeed = playerSpeed;
-			flipX = 0;
-			flipWidth = 1;
-			xDrawOffset = 24 * Game.SCALE;
+			xSpeed += playerSpeed;
+			flipImage(false);
 		}
 		
 		if(inAir) {
@@ -147,8 +164,9 @@ public class Player {
 					airAccelerate = fallAfterCollision;
 				updateXPos(xSpeed);
 			}
-		}else
+		}else {
 			updateXPos(xSpeed);
+		}
 		
 		moving = true;
 	}
@@ -159,30 +177,33 @@ public class Player {
 		}else {
 			hitbox.x = xWallCollide(hitbox, xSpeed);
 		}
-		
 	}
-
-	private void loadAnimations() {
-
-		BufferedImage img = LoadData.GetSpriteAtlas(LoadData.PLAYER_ATLAS);
-
-		animations = new BufferedImage[5][9];
-		
-		animations[IDLE] = LoadData.GetAnimationSprite(img, 0, 0, GetSpriteAmount(IDLE));
-		animations[RUNNING] = LoadData.GetAnimationSprite(img, 4, 1, GetSpriteAmount(RUNNING));
-		animations[JUMP] = LoadData.GetAnimationSprite(img, 0, 2, GetSpriteAmount(JUMP));
-		animations[FALLING] = LoadData.GetAnimationSprite(img, 4, 2, GetSpriteAmount(FALLING));
-		animations[DEATH] = LoadData.GetAnimationSprite(img, 0, 3, GetSpriteAmount(DEATH));
+	
+	private void inAirCheck() {
+		if(CanMoveHere(hitbox.x, hitbox.y + 1, hitbox.width, hitbox.height, lvlData)){
+			inAir = true;
+		}
 	}
+	
+	private void flipImage(boolean flip) {
+		if(flip) {
+			flipX = width;
+			flipWidth = -1;
+			xDrawOffset = 18 * Game.SCALE;
+		} else {
+			flipX = 0;
+			flipWidth = 1;
+			xDrawOffset = 24 * Game.SCALE;
+		}
+	}
+	
+	// Load Level Data
 
 	public void loadLvlData(int[][] lvlData) {
 		this.lvlData = lvlData;
-		if(!inAir) {
-			if(CanMoveHere(hitbox.x, hitbox.y + 1, hitbox.width, hitbox.height, lvlData)){
-				inAir = true;
-			}
-		}
 	}
+	
+	// Set Direction Booleans
 
 	public void resetDirBooleans() {
 		left = false;
