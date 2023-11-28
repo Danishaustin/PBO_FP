@@ -7,21 +7,37 @@ import java.awt.geom.Rectangle2D;
 
 import utilz.LoadData;
 import static utilz.Constant.PlayerConstants.*;
-import static utilz.Collision.CanMoveHere;
+import static utilz.Collision.*;
 
 public class Player {
+	// player initialization
 	float x, y;
 	int width, height;
 	private Rectangle2D.Float hitbox;
+	private float xDrawOffset = 24 * Game.SCALE;
+	private float yDrawOffset = 24 * Game.SCALE;
+	
+	// player animations
 	private BufferedImage[][] animations;
-	private int aniTick, aniIndex, aniSpeed = 25;
+	private int aniTick, aniIndex, aniSpeed = 10;
 	private int playerAction = IDLE;
 	private boolean moving = false;
-	private boolean left, up, right, down;
+	private boolean left, right, jump;
 	private float playerSpeed = 2.0f;
+	
+	// map data
 	private int[][] lvlData;
-	private float xDrawOffset = 21 * Game.SCALE;
-	private float yDrawOffset = 4 * Game.SCALE;
+	
+	// player gravity
+	private float airAccelerate = 0f;
+	private float gravity = 0.06f * Game.SCALE;
+	private float jumpAccelerate = -3f * Game.SCALE;
+	private float fallAfterCollision = 0.5f * Game.SCALE;
+	private boolean inAir = false;
+	
+	// player flip image
+	private int flipX = 0;
+	private int flipWidth = 1;
 
 	public Player(float x, float y, int width, int height) {
 		this.x = x;
@@ -29,7 +45,7 @@ public class Player {
 		this.width = width;
 		this.height = height;
 		loadAnimations();
-		initHitbox(x, y, 20 * Game.SCALE, 28 * Game.SCALE);
+		initHitbox(x, y, 22 * Game.SCALE, 20 * Game.SCALE);
 
 	}
 	
@@ -37,11 +53,11 @@ public class Player {
 		hitbox = new Rectangle2D.Float(x, y, width, height);
 	}
 	
-//	private void drawHitbox(Graphics g) {
-//		g.setColor(Color.PINK);
-//		g.drawRect((int) hitbox.x, (int) hitbox.y, (int) hitbox.width, (int) hitbox.height);
-//
-//	}
+	private void drawHitbox(Graphics g) {
+		g.setColor(Color.PINK);
+		g.drawRect((int) hitbox.x, (int) hitbox.y, (int) hitbox.width, (int) hitbox.height);
+
+	}
 
 	public void update() {
 		updatePos();
@@ -50,8 +66,9 @@ public class Player {
 	}
 
 	public void render(Graphics g) {
-		g.drawImage(animations[playerAction][aniIndex], (int) (hitbox.x - xDrawOffset), (int) (hitbox.y - yDrawOffset), width, height, null);
-		// drawHitbox(g);
+		g.drawImage(animations[playerAction][aniIndex], (int) (hitbox.x - xDrawOffset) + flipX, (int) (hitbox.y - yDrawOffset), 
+				width * flipWidth, height, null);
+		drawHitbox(g);
 	}
 
 	private void updateAnimationTick() {
@@ -74,6 +91,13 @@ public class Player {
 			playerAction = RUNNING;
 		else
 			playerAction = IDLE;
+		
+		if(inAir) {
+			if(airAccelerate < 0)
+				playerAction = JUMP;
+			if(airAccelerate > 0)
+				playerAction = FALLING;
+		}
 
 		if (startAni != playerAction)
 			resetAniTick();
@@ -86,81 +110,96 @@ public class Player {
 
 	private void updatePos() {
 		moving = false;
-		if (!left && !right && !up && !down)
+		if (!left && !right && !inAir)
 			return;
 
-		float xSpeed = 0, ySpeed = 0;
-
-		if (left && !right)
-			xSpeed = -playerSpeed;
-		else if (right && !left)
-			xSpeed = playerSpeed;
-
-		if (up && !down)
-			ySpeed = -playerSpeed;
-		else if (down && !up)
-			ySpeed = playerSpeed;
-
-		if (CanMoveHere(hitbox.x + xSpeed, hitbox.y + ySpeed, hitbox.width, hitbox.height, lvlData)) {
-			hitbox.x += xSpeed;
-			hitbox.y += ySpeed;
-			moving = true;
+		float xSpeed = 0;
+		
+		if(jump && !inAir) {
+			inAir = true;
+			airAccelerate = jumpAccelerate;
 		}
+		if (left) {
+			xSpeed = -playerSpeed;
+			flipX = width;
+			flipWidth = -1;
+			xDrawOffset = 18 * Game.SCALE;
+		}
+		if (right) {
+			xSpeed = playerSpeed;
+			flipX = 0;
+			flipWidth = 1;
+			xDrawOffset = 24 * Game.SCALE;
+		}
+		
+		if(inAir) {
+			if(CanMoveHere(hitbox.x, hitbox.y + airAccelerate, hitbox.width, hitbox.height, lvlData)) {
+				hitbox.y += airAccelerate;
+				airAccelerate += gravity;
+				updateXPos(xSpeed);
+			}else {
+				hitbox.y = yWallCollide(hitbox, airAccelerate);
+				if(airAccelerate > 0) {
+					inAir = false;
+					airAccelerate = 0;
+				}
+				else
+					airAccelerate = fallAfterCollision;
+				updateXPos(xSpeed);
+			}
+		}else
+			updateXPos(xSpeed);
+		
+		moving = true;
+	}
 
+	private void updateXPos(float xSpeed) {
+		if (CanMoveHere(hitbox.x + xSpeed, hitbox.y, hitbox.width, hitbox.height, lvlData)) {
+			hitbox.x += xSpeed;
+		}else {
+			hitbox.x = xWallCollide(hitbox, xSpeed);
+		}
+		
 	}
 
 	private void loadAnimations() {
 
 		BufferedImage img = LoadData.GetSpriteAtlas(LoadData.PLAYER_ATLAS);
 
-		animations = new BufferedImage[9][6];
-		for (int j = 0; j < animations.length; j++)
-			for (int i = 0; i < animations[j].length; i++)
-				animations[j][i] = img.getSubimage(i * 64, j * 40, 64, 40);
-
+		animations = new BufferedImage[5][9];
+		
+		animations[IDLE] = LoadData.GetAnimationSprite(img, 0, 0, GetSpriteAmount(IDLE));
+		animations[RUNNING] = LoadData.GetAnimationSprite(img, 4, 1, GetSpriteAmount(RUNNING));
+		animations[JUMP] = LoadData.GetAnimationSprite(img, 0, 2, GetSpriteAmount(JUMP));
+		animations[FALLING] = LoadData.GetAnimationSprite(img, 4, 2, GetSpriteAmount(FALLING));
+		animations[DEATH] = LoadData.GetAnimationSprite(img, 0, 3, GetSpriteAmount(DEATH));
 	}
 
 	public void loadLvlData(int[][] lvlData) {
 		this.lvlData = lvlData;
+		if(!inAir) {
+			if(CanMoveHere(hitbox.x, hitbox.y + 1, hitbox.width, hitbox.height, lvlData)){
+				inAir = true;
+			}
+		}
 	}
 
 	public void resetDirBooleans() {
 		left = false;
 		right = false;
-		up = false;
-		down = false;
-	}
-
-	public boolean isLeft() {
-		return left;
+		jump = false;
 	}
 
 	public void setLeft(boolean left) {
 		this.left = left;
 	}
 
-	public boolean isUp() {
-		return up;
-	}
-
-	public void setUp(boolean up) {
-		this.up = up;
-	}
-
-	public boolean isRight() {
-		return right;
+	public void setJump(boolean jump) {
+		this.jump = jump;
 	}
 
 	public void setRight(boolean right) {
 		this.right = right;
-	}
-
-	public boolean isDown() {
-		return down;
-	}
-
-	public void setDown(boolean down) {
-		this.down = down;
 	}
 
 }
