@@ -6,6 +6,7 @@ import levels.LevelManager;
 
 public class Game implements Runnable {
 
+	// Game Running
 	private GameWindow gameWindow;
 	private GamePanel gamePanel;
 	private Thread gameThread;
@@ -13,6 +14,7 @@ public class Game implements Runnable {
 	private Player player;
 	private LevelManager levelManager;
 
+	// Game Tiles
 	public final static int TILES_DEFAULT_SIZE = 32;
 	public final static float SCALE = 1.5f;
 	public final static int TILES_IN_WIDTH = 26;
@@ -36,11 +38,16 @@ public class Game implements Runnable {
 		player.loadLvlData(levelManager.getCurrentLevel().getLevelData());
 
 	}
-
-	private void startGameLoop() {
-		gameThread = new Thread(this);
-		gameThread.start();
+	
+	public void windowFocusLost() {
+		player.resetDirBooleans();
 	}
+
+	public Player getPlayer() {
+		return player;
+	}
+	
+	// Update Position & Repaint Panel
 
 	public void update() {
 		levelManager.update();
@@ -52,9 +59,15 @@ public class Game implements Runnable {
 		player.render(g);
 	}
 
+	// Game Looping
+	
+	private void startGameLoop() {
+		gameThread = new Thread(this);
+		gameThread.start();
+	}
+	
 	@Override
 	public void run() {
-
 		double timePerFrame = 1000000000.0 / FPS_SET;
 
 		int frames = 0;
@@ -86,12 +99,5 @@ public class Game implements Runnable {
 
 	}
 
-	public void windowFocusLost() {
-		player.resetDirBooleans();
-	}
-
-	public Player getPlayer() {
-		return player;
-	}
 
 }
