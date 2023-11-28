@@ -2,6 +2,7 @@ package utilz;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -41,6 +42,38 @@ public class LoadData {
 		}
 		return img;
 	}
+	
+	public static BufferedImage[] GetAnimationSprite(BufferedImage spriteSheets, int xIndexStart, int yIndexStart, int aniLength) {
+		BufferedImage[] animations = new BufferedImage[aniLength];
+		for(int i = 0; i < aniLength; i++) {
+			animations[i] = spriteSheets.getSubimage(xIndexStart * 32 + i * 32, yIndexStart * 32, 32, 32);
+		}
+		
+		return animations;
+	}
+	
+//	public static BufferedImage[] GetSpriteFile(String filePath) {
+//		File path = new File(filePath);
+//		File[] allFiles = path.listFiles();
+//		
+//		if(allFiles != null) {
+//			
+//			BufferedImage[] allImage = new BufferedImage[allFiles.length];
+//			
+//			for(int i = 0; i < allFiles.length; i++) {
+//				try {
+//					allImage[i] = ImageIO.read(allFiles[i]);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//			
+//			return allImage;
+//		}
+//		
+//		return null;
+//		
+//	}
 
 	public static int[][] GetLevelData() {
 		int[][] lvlData = new int[Game.TILES_IN_HEIGHT][Game.TILES_IN_WIDTH];

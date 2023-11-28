@@ -10,7 +10,6 @@ public class Game implements Runnable {
 	private GamePanel gamePanel;
 	private Thread gameThread;
 	private final int FPS_SET = 120;
-	private final int UPS_SET = 200;
 	private Player player;
 	private LevelManager levelManager;
 
@@ -33,7 +32,7 @@ public class Game implements Runnable {
 
 	private void initClasses() {
 		levelManager = new LevelManager(this);
-		player = new Player(200, 200, (int) (64 * SCALE), (int) (40 * SCALE));
+		player = new Player(200, 200, (int) (64 * SCALE), (int) (64 * SCALE));
 		player.loadLvlData(levelManager.getCurrentLevel().getLevelData());
 
 	}
@@ -57,31 +56,21 @@ public class Game implements Runnable {
 	public void run() {
 
 		double timePerFrame = 1000000000.0 / FPS_SET;
-		double timePerUpdate = 1000000000.0 / UPS_SET;
-
-		long previousTime = System.nanoTime();
 
 		int frames = 0;
-		int updates = 0;
-		long lastCheck = System.currentTimeMillis();
-
-		double deltaU = 0;
 		double deltaF = 0;
+
+		long lastCheck = System.currentTimeMillis();
+		long previousTime = System.nanoTime();
 
 		while (true) {
 			long currentTime = System.nanoTime();
-
-			deltaU += (currentTime - previousTime) / timePerUpdate;
+	
 			deltaF += (currentTime - previousTime) / timePerFrame;
 			previousTime = currentTime;
 
-			if (deltaU >= 1) {
-				update();
-				updates++;
-				deltaU--;
-			}
-
 			if (deltaF >= 1) {
+				update();
 				gamePanel.repaint();
 				frames++;
 				deltaF--;
@@ -89,9 +78,8 @@ public class Game implements Runnable {
 
 			if (System.currentTimeMillis() - lastCheck >= 1000) {
 				lastCheck = System.currentTimeMillis();
-				System.out.println("FPS: " + frames + " | UPS: " + updates);
+				System.out.println("FPS: " + frames);
 				frames = 0;
-				updates = 0;
 
 			}
 		}
