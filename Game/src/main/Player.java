@@ -23,7 +23,7 @@ public class Player {
 	private int playerAction = IDLE;
 	private boolean moving = false;
 	private boolean left, right, jump;
-	private float playerSpeed = 2.0f;
+	private float playerSpeed = 2.0f * Game.SCALE;
 	
 	// map data
 	private int[][] lvlData;
@@ -45,21 +45,21 @@ public class Player {
 		this.width = width;
 		this.height = height;
 		loadAnimations();
-		initHitbox(x, y, 22 * Game.SCALE, 20 * Game.SCALE);
+		initHitbox(x, y, (int)(22 * Game.SCALE), (int)(20 * Game.SCALE));
 
 	}
 	
 	// Rendering Method
 	
-	private void initHitbox(float x, float y, float width, float height) {
+	private void initHitbox(float x, float y, int width, int height) {
 		hitbox = new Rectangle2D.Float(x, y, width, height);
 	}
 	
-	private void drawHitbox(Graphics g) {
-		g.setColor(Color.PINK);
-		g.drawRect((int) hitbox.x, (int) hitbox.y, (int) hitbox.width, (int) hitbox.height);
-
-	}
+//	private void drawHitbox(Graphics g) {
+//		g.setColor(Color.PINK);
+//		g.drawRect((int) hitbox.x, (int) hitbox.y, (int) hitbox.width, (int) hitbox.height);
+//
+//	}
 
 	public void update() {
 		updatePos();
@@ -67,10 +67,12 @@ public class Player {
 		setAnimation();
 	}
 
-	public void render(Graphics g) {
-		g.drawImage(animations[playerAction][aniIndex], (int) (hitbox.x - xDrawOffset) + flipX, (int) (hitbox.y - yDrawOffset), 
+	public void render(Graphics g, int xLvlOffset, int yLvlOffset) {
+		g.drawImage(animations[playerAction][aniIndex], 
+				(int) (hitbox.x - xDrawOffset) + flipX - xLvlOffset, 
+				(int) (hitbox.y - yDrawOffset) - yLvlOffset, 
 				width * flipWidth, height, null);
-		drawHitbox(g);
+		// drawHitbox(g);
 	}
 	
 	// Animations Method
@@ -130,16 +132,20 @@ public class Player {
 
 	private void updatePos() {
 		moving = false;
-		inAirCheck();
-		if (!left && !right && !jump && !inAir)
+		
+		if (!inAir) {
+			if (jump) {
+				inAir = true;
+				airAccelerate = jumpAccelerate;
+			} else 
+				inAirCheck();
+		}
+		
+		if (!left && !right && !inAir)
 			return;
 
 		float xSpeed = 0;
 		
-		if(jump && !inAir) {
-			inAir = true;
-			airAccelerate = jumpAccelerate;
-		}
 		if (left) {
 			xSpeed -= playerSpeed;
 			flipImage(true);
@@ -148,34 +154,34 @@ public class Player {
 			xSpeed += playerSpeed;
 			flipImage(false);
 		}
+					
+		if (inAir) 
+			updateYPosition();
 		
-		if(inAir) {
-			if(CanMoveHere(hitbox.x, hitbox.y + airAccelerate, hitbox.width, hitbox.height, lvlData)) {
-				hitbox.y += airAccelerate;
-				airAccelerate += gravity;
-				updateXPos(xSpeed);
-			}else {
-				hitbox.y = yWallCollide(hitbox, airAccelerate);
-				if(airAccelerate > 0) {
-					inAir = false;
-					airAccelerate = 0;
-				}
-				else
-					airAccelerate = fallAfterCollision;
-				updateXPos(xSpeed);
-			}
-		}else {
-			updateXPos(xSpeed);
-		}
-		
+		updateXPosition(xSpeed);
 		moving = true;
 	}
 
-	private void updateXPos(float xSpeed) {
+	private void updateXPosition(float xSpeed) {
 		if (CanMoveHere(hitbox.x + xSpeed, hitbox.y, hitbox.width, hitbox.height, lvlData)) {
 			hitbox.x += xSpeed;
 		}else {
 			hitbox.x = xWallCollide(hitbox, xSpeed);
+		}
+	}
+	
+	private void updateYPosition() {
+		if(CanMoveHere(hitbox.x, hitbox.y + airAccelerate, hitbox.width, hitbox.height, lvlData)) {
+			hitbox.y += airAccelerate;
+			airAccelerate += gravity;
+		}else {
+			hitbox.y = yWallCollide(hitbox, airAccelerate);
+			if(airAccelerate > 0) {
+				inAir = false;
+				airAccelerate = 0;
+			}
+			else
+				airAccelerate = fallAfterCollision;
 		}
 	}
 	
@@ -203,7 +209,7 @@ public class Player {
 		this.lvlData = lvlData;
 	}
 	
-	// Set Direction Booleans
+	// Additional Methods
 
 	public void resetDirBooleans() {
 		left = false;
@@ -221,6 +227,16 @@ public class Player {
 
 	public void setRight(boolean right) {
 		this.right = right;
+	}
+	
+	public void reset() {
+		this.hitbox.x = this.x;
+		this.hitbox.y = this.y;
+		this.airAccelerate = 0;
+	}
+	
+	public Rectangle2D.Float getHitbox() {
+		return this.hitbox;
 	}
 
 }
