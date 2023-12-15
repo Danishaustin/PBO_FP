@@ -16,9 +16,13 @@ public class Collision {
 	}
 
 	private static boolean IsSolid(float x, float y, int[][] lvlData) {
-		if (x < 0 || x >= Game.GAME_WIDTH)
+		
+		int levelWidth = lvlData[0].length * Game.TILES_SIZE;
+		int levelHeight = lvlData.length * Game.TILES_SIZE;
+		
+		if (x < 0 || x >= levelWidth)
 			return true;
-		if (y < 0 || y >= Game.GAME_HEIGHT)
+		if (y < 0 || y >= levelHeight)
 			return true;
 
 		float xIndex = x / Game.TILES_SIZE;
