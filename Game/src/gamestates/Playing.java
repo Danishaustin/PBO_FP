@@ -123,6 +123,7 @@ public class Playing extends States {
 		g.setFont(font);
 		g.setColor(Color.WHITE);
 		g.drawString("Keys Left: " + this.keysLeft, stringPositionX, stringPositionY);
+		g.drawString("Press F to interact with object", stringPositionX, stringPositionY + 30);
 		
 		if (hintShow) {
 			g.setColor(new Color(0, 0, 0, 200));
