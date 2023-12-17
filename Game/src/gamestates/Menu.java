@@ -57,6 +57,9 @@ public class Menu extends States {
 		for(MenuButton mb : buttons) {
 			if(isInButton(e, mb)) {
 				mb.applyGamestate();
+				if(mb.getGamestate() == Gamestate.PLAYING) {
+					game.getPlaying().unpauseGame();
+				}
 				break;
 			}
 		}

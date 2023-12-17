@@ -21,6 +21,59 @@ public class Constant {
 		public static final int RIGHT = 2;
 		public static final int DOWN = 3;
 	}
+	
+	public static class Hint {
+		
+		public static final String HINT_TEXT_0 = "ppppppppppppppppppppppppppp";
+		
+	}
+	
+	public static class ObjectConstants {
+
+		public static final int KEY = 0;
+		public static final int BOX = 1;
+		public static final int EXPLODING_BOX = 2;
+		public static final int KEY_BOX = 3;
+		public static final int HINT_BOX = 4;
+		public static final int EXPLOSION = 100;
+//		public static final int SPIKE = 2;
+//		public static final int SPIKE_TRAP = 3;
+//		public static final int CANNON_LEFT = 4;
+//		public static final int CANNON_RIGHT = 5;
+//		public static final int TORCH = 6;
+//		public static final int TORCH_LIT = 7;
+
+		public static final int KEY_WIDTH_DEFAULT = 32;
+		public static final int KEY_HEIGHT_DEFAULT = 28;
+		public static final int KEY_WIDTH = (int) (Game.SCALE * KEY_WIDTH_DEFAULT);
+		public static final int KEY_HEIGHT = (int) (Game.SCALE * KEY_HEIGHT_DEFAULT);
+		
+		public static final int BOX_WIDTH_DEFAULT = 40;
+		public static final int BOX_HEIGHT_DEFAULT = 21;
+		public static final int BOX_WIDTH = (int) (Game.SCALE * BOX_WIDTH_DEFAULT);
+		public static final int BOX_HEIGHT = (int) (Game.SCALE * BOX_HEIGHT_DEFAULT);
+		
+		public static final int EXPLOSION_WIDTH_DEFAULT = 48;
+		public static final int EXPLOSION_HEIGHT_DEFAULT = 48;
+		public static final float EXPLOSION_SCALE = 1.5f;
+		public static final int EXPLOSION_WIDTH = (int) (Game.SCALE * EXPLOSION_WIDTH_DEFAULT * EXPLOSION_SCALE);
+		public static final int EXPLOSION_HEIGHT = (int) (Game.SCALE * EXPLOSION_HEIGHT_DEFAULT * EXPLOSION_SCALE);
+		
+		public static final int HINT_WIDTH_DEFAULT = 32;
+		public static final int HINT_HEIGHT_DEFAULT = 22;
+		public static final int HINT_WIDTH = (int) (Game.SCALE * HINT_WIDTH_DEFAULT);
+		public static final int HINT_HEIGHT = (int) (Game.SCALE * HINT_HEIGHT_DEFAULT);
+
+		public static int GetSpriteAmount(int object_type) {
+			switch (object_type) {
+			case KEY, BOX, EXPLOSION:
+				return 8;
+			case HINT_BOX:
+				return 6;
+			}
+			return 1;
+		}
+	}
 
 	public static class PlayerConstants {
 		public static final int IDLE = 0;

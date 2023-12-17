@@ -98,7 +98,7 @@ public class Game implements Runnable {
 		case MENU:
 			menu.draw(g);
 			break;
-		case PLAYING:
+		case PLAYING, PAUSED, GAMEOVER:
 			playing.draw(g);
 			break;
 		default:

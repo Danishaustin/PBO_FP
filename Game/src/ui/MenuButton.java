@@ -44,5 +44,9 @@ public class MenuButton extends Buttons {
     public void applyGamestate() {
         Gamestate.state = state;
     }
+    
+    public Gamestate getGamestate() {
+    	return this.state;
+    }
 
 }

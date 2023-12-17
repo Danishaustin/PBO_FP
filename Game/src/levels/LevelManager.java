@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import main.Game;
-import utilz.LoadData;
+import static utilz.LoadData.*;
 
 public class LevelManager {
 
@@ -15,11 +15,11 @@ public class LevelManager {
 	public LevelManager(Game game) {
 		this.game = game;
 		importOutsideSprites();
-		levelOne = new Level(LoadData.GetLevelData());
+		levelOne = new Level(GetSpriteAtlas(LEVEL_ONE_DATA));
 	}
 
 	private void importOutsideSprites() {
-		BufferedImage img = LoadData.GetSpriteAtlas(LoadData.LEVEL_ATLAS);
+		BufferedImage img = GetSpriteAtlas(LEVEL_ATLAS);
 		levelSprite = new BufferedImage[50];
 		for (int j = 0; j < 7; j++)
 			for (int i = 0; i < 7; i++) {

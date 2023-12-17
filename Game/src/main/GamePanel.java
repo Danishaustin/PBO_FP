@@ -2,7 +2,9 @@ package main;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+
 import javax.swing.JPanel;
+
 import static main.Game.GAME_HEIGHT;
 import static main.Game.GAME_WIDTH;
 
