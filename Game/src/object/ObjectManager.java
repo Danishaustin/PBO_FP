@@ -14,10 +14,11 @@ import static utilz.Constant.ObjectConstants.*;
 public class ObjectManager {
 
 	private Playing playing;
-	private BufferedImage[] keyImg, boxImg, explosionImg, hintImg;
+	private BufferedImage[] keyImg, boxImg, explosionImg, hintImg, spikeImg;
 	private ArrayList<Key> keys;
 	private ArrayList<Box> boxes;
 	private ArrayList<HintBox> hints;
+	private ArrayList<Spike> spikes;
 	private ArrayList<Explosion> explosions = new ArrayList<>();
 	private Rectangle2D.Float playerHitbox;
 	
@@ -53,12 +54,19 @@ public class ObjectManager {
 		
 		for (int i = 0; i < hintImg.length; i++)
 			hintImg[i] = hintSprite.getSubimage(32 * i, 0, 32, 22);
+		
+		BufferedImage spikeSprite = LoadData.GetSpriteAtlas(LoadData.SPIKE_TRAP_SPRITES);
+		spikeImg = new BufferedImage[15];
+		
+		for (int i = 0; i < spikeImg.length; i++)
+			spikeImg[i] = spikeSprite.getSubimage(32 * i, 0, 32, 32);
 	}
 	
 	public void loadObjects(Level newLevel) {
 		keys = new ArrayList<>(newLevel.getKeys());
 		boxes = new ArrayList<>(newLevel.getBoxes());
 		hints = new ArrayList<>(newLevel.getHints());
+		spikes = new ArrayList<>(newLevel.getSpikes());
 		explosions.clear();
 	}
 	
@@ -71,10 +79,11 @@ public class ObjectManager {
 			if (b.isActive())
 				b.update();
 		
-		for (HintBox hb : hints){
+		for (HintBox hb : hints)
 			if (hb.isActive())
 				hb.update();
-		}
+		
+		checkSpikeTouched();
 		
 		if (!explosions.isEmpty()) {
 			if(!explosions.getFirst().isActive()) {
@@ -96,15 +105,41 @@ public class ObjectManager {
 		}
 		
 	}
+	
+	private void checkSpikeTouched() {
+		for (Spike s : spikes) {
+			if(s.isActive()) {
+				s.update();
+				playerHitbox = playing.getPlayer().getHitbox();
+				if(s.hitPlayer(playerHitbox)) {
+					playing.isGameOver();
+				}
+			}
+		}
+	}
 
 	public void draw(Graphics g, int xLvlOffset, int yLvlOffset) {
 		drawBoxes(g, xLvlOffset, yLvlOffset);
 		drawKeys(g, xLvlOffset, yLvlOffset);
 		drawHints(g, xLvlOffset, yLvlOffset);
+		drawSpikes(g, xLvlOffset, yLvlOffset);
 		
 		if(!explosions.isEmpty()) {
 			drawExplosion(g, xLvlOffset, yLvlOffset);
 		}
+	}
+
+	private void drawSpikes(Graphics g, int xLvlOffset, int yLvlOffset) {
+		for (Spike s : spikes)
+			if (s.isActive()) {
+				g.drawImage(spikeImg[s.getAniIndex()], (int) (s.getHitbox().x - s.getxDrawOffset() - xLvlOffset), 
+						(int) (s.getHitbox().y - s.getyDrawOffset() - yLvlOffset), 
+						SPIKE_WIDTH,
+						SPIKE_HEIGHT, 
+						null);
+			}
+		
+		
 	}
 
 	private void drawHints(Graphics g, int xLvlOffset, int yLvlOffset) {
@@ -115,7 +150,6 @@ public class ObjectManager {
 						HINT_WIDTH,
 						HINT_HEIGHT, 
 						null);
-				hb.drawHitbox(g, xLvlOffset, yLvlOffset);
 			}
 		
 	}
@@ -128,7 +162,6 @@ public class ObjectManager {
 						EXPLOSION_WIDTH,
 						EXPLOSION_HEIGHT, 
 						null);
-				e.drawHitbox(g, xLvlOffset, yLvlOffset);
 			}
 		}
 		
@@ -142,7 +175,6 @@ public class ObjectManager {
 						BOX_WIDTH,
 						BOX_HEIGHT, 
 						null);
-				b.drawHitbox(g, xLvlOffset, yLvlOffset);
 			}
 	}
 
@@ -154,7 +186,6 @@ public class ObjectManager {
 						KEY_WIDTH, 
 						KEY_HEIGHT,
 						null);
-				k.drawHitbox(g, xLvlOffset, yLvlOffset);
 			}
 	}
 
@@ -214,6 +245,9 @@ public class ObjectManager {
 		
 		for (HintBox hb : hints)
 			hb.reset();
+		
+		for (Spike s : spikes)
+			s.reset();
 	}
 	
 	public int getTotalKey() {

@@ -55,7 +55,7 @@ public class Playing extends States {
 	private void initClasses() {
 		levelManager = new LevelManager(game);
 		objectManager = new ObjectManager(this);
-		player = new Player(1000, 1000, (int) (64 * Game.SCALE), (int) (64 * Game.SCALE));
+		player = new Player(200, 1104, (int) (64 * Game.SCALE), (int) (64 * Game.SCALE));
 		player.loadLvlData(levelManager.getCurrentLevel().getLevelData());
 		pause = new Pause(game);
 		font = new Font("Arial", Font.BOLD, 20);

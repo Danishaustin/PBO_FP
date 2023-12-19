@@ -13,6 +13,8 @@ import main.Game;
 import object.Box;
 import object.HintBox;
 import object.Key;
+import object.Spike;
+
 import static utilz.Constant.ObjectConstants.*;
 import static utilz.Constant.Hint.*;
 
@@ -151,7 +153,21 @@ public class LoadData {
 		ArrayList<String> list = new ArrayList<>();
 		
 		list.add(HINT_TEXT_0);
+		list.add(HINT_TEXT_1);
 		
+		return list;
+	}
+	
+	public static ArrayList<Spike> GetSpikes(BufferedImage img){
+		ArrayList<Spike> list = new ArrayList<>();
+		for (int j = 0; j < img.getHeight(); j++)
+			for (int i = 0; i < img.getWidth(); i++) {
+				Color color = new Color(img.getRGB(i, j));
+				int value = color.getBlue();
+				if (value == SPIKE || value == SPIKE_TRAP) 
+					list.add(new Spike(i * Game.TILES_SIZE, j * Game.TILES_SIZE, value));
+			}
+
 		return list;
 	}
 

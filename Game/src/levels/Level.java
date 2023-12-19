@@ -7,6 +7,7 @@ import main.Game;
 import object.Box;
 import object.HintBox;
 import object.Key;
+import object.Spike;
 import utilz.LoadData;
 
 import static utilz.LoadData.*;
@@ -19,6 +20,7 @@ public class Level {
 	private ArrayList<Box> box;
 	private ArrayList<HintBox> hints;
 	private ArrayList<String> hintText;
+	private ArrayList<Spike> spikes;
 	private int lvlTilesWideX, lvlTilesWideY;
 	private int maxTilesOffsetX, maxTilesOffsetY;
 	private int maxLvlOffsetX, maxLvlOffsetY;
@@ -30,7 +32,13 @@ public class Level {
 		createKey();
 		createBox();
 		createHint();
+		createSpike();
 		offsetCalculation();
+	}
+
+
+	private void createSpike() {
+		this.spikes = GetSpikes(img);
 	}
 
 
@@ -98,6 +106,10 @@ public class Level {
 	
 	public ArrayList<HintBox> getHints() {
 		return hints;
+	}
+	
+	public ArrayList<Spike> getSpikes() {
+		return spikes;
 	}
 
 }

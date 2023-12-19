@@ -40,10 +40,12 @@ public class GameObject {
 
 	public void reset() {
 		aniIndex = 0;
+		if (objType == SPIKE)
+			aniIndex = 9;
 		aniTick = 0;
 		active = true;
 
-		if (objType == BOX || objType == EXPLODING_BOX || objType == KEY_BOX)
+		if (objType == BOX || objType == EXPLODING_BOX || objType == KEY_BOX || objType == SPIKE)
 			doAnimation = false;
 		else
 			doAnimation = true;
@@ -76,6 +78,10 @@ public class GameObject {
 
 	public void setAnimation(boolean doAnimation) {
 		this.doAnimation = doAnimation;
+	}
+	
+	public boolean getAnimation() {
+		return this.doAnimation;
 	}
 
 	public int getxDrawOffset() {

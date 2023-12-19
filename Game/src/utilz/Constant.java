@@ -24,8 +24,8 @@ public class Constant {
 	
 	public static class Hint {
 		
-		public static final String HINT_TEXT_0 = "ppppppppppppppppppppppppppp";
-		
+		public static final String HINT_TEXT_0 = "A little girl goes to the     store and buys one dozen eggs.As she is going home, all but  three eggs break. How many eggsare left unbroken. You have a choice 1-8";
+		public static final String HINT_TEXT_1 = "The thorn is the savior, the closest believer is the one who will survive";
 	}
 	
 	public static class ObjectConstants {
@@ -35,9 +35,10 @@ public class Constant {
 		public static final int EXPLODING_BOX = 2;
 		public static final int KEY_BOX = 3;
 		public static final int HINT_BOX = 4;
+		public static final int SPIKE = 5;
+		public static final int SPIKE_TRAP = 6;
 		public static final int EXPLOSION = 100;
-//		public static final int SPIKE = 2;
-//		public static final int SPIKE_TRAP = 3;
+
 //		public static final int CANNON_LEFT = 4;
 //		public static final int CANNON_RIGHT = 5;
 //		public static final int TORCH = 6;
@@ -63,6 +64,11 @@ public class Constant {
 		public static final int HINT_HEIGHT_DEFAULT = 22;
 		public static final int HINT_WIDTH = (int) (Game.SCALE * HINT_WIDTH_DEFAULT);
 		public static final int HINT_HEIGHT = (int) (Game.SCALE * HINT_HEIGHT_DEFAULT);
+		
+		public static final int SPIKE_WIDTH_DEFAULT = 32;
+		public static final int SPIKE_HEIGHT_DEFAULT = 22;
+		public static final int SPIKE_WIDTH = (int) (Game.SCALE * SPIKE_WIDTH_DEFAULT);
+		public static final int SPIKE_HEIGHT = (int) (Game.SCALE * (SPIKE_HEIGHT_DEFAULT + 12));
 
 		public static int GetSpriteAmount(int object_type) {
 			switch (object_type) {
@@ -70,6 +76,8 @@ public class Constant {
 				return 8;
 			case HINT_BOX:
 				return 6;
+			case SPIKE, SPIKE_TRAP:
+				return 15;
 			}
 			return 1;
 		}
